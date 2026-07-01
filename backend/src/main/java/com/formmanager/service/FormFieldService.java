@@ -23,6 +23,10 @@ public class FormFieldService {
         Form form = formRepository.findById(formId)
                 .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
 
+        if (form.getStatus() == com.formmanager.entity.enums.FormStatus.PUBLISHED) {
+            throw new IllegalStateException("Không thể thêm câu hỏi vào biểu mẫu đã công khai.");
+        }
+
         if (formFieldRepository.existsByFormIdAndName(formId, request.getName())) {
             throw new IllegalArgumentException("Field with name '" + request.getName() + "' already exists in this form");
         }
@@ -47,6 +51,10 @@ public class FormFieldService {
     public FormFieldResponse updateField(Long formId, Long fieldId, FormFieldCreateRequest request) {
         Form form = formRepository.findById(formId)
                 .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
+
+        if (form.getStatus() == com.formmanager.entity.enums.FormStatus.PUBLISHED) {
+            throw new IllegalStateException("Không thể chỉnh sửa câu hỏi của biểu mẫu đã công khai.");
+        }
 
         FormField field = formFieldRepository.findById(fieldId)
                 .orElseThrow(() -> new ResourceNotFoundException("Field not found with id: " + fieldId));
@@ -76,6 +84,10 @@ public class FormFieldService {
     public void deleteField(Long formId, Long fieldId) {
         Form form = formRepository.findById(formId)
                 .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
+
+        if (form.getStatus() == com.formmanager.entity.enums.FormStatus.PUBLISHED) {
+            throw new IllegalStateException("Không thể xóa câu hỏi khỏi biểu mẫu đã công khai.");
+        }
 
         FormField field = formFieldRepository.findById(fieldId)
                 .orElseThrow(() -> new ResourceNotFoundException("Field not found with id: " + fieldId));

@@ -28,6 +28,7 @@ export const FormBuilder = ({ type }) => {
     setActiveFieldIndex,
     handleAddField,
     handleUpdateField,
+    handleSaveField,
     handleDuplicateField,
     handleDeleteField,
     handleMoveField,
@@ -104,12 +105,10 @@ export const FormBuilder = ({ type }) => {
             index={index}
             isActive={index === activeFieldIndex}
             onFocus={() => setActiveFieldIndex(index)}
-            onUpdate={(updatedData) => handleUpdateField(index, updatedData)}
+            onUpdate={(updatedData, saveNow) => handleUpdateField(index, updatedData, saveNow)}
+            onSave={() => handleSaveField(index)}
             onDuplicate={() => handleDuplicateField(index)}
             onDelete={() => handleDeleteField(index)}
-            onMove={(direction) => handleMoveField(index, direction)}
-            isFirst={index === 0}
-            isLast={index === fields.length - 1}
           />
         ))}
       </div>

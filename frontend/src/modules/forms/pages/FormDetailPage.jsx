@@ -1,16 +1,35 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import FormBuilder from "../components/FormBuilder";
 import FormViewer from "../components/FormViewer";
-import { useFormBuilder } from "../hooks/useFormBuilder";
+import formService from "../../../services/formService";
 
 export const FormDetailPage = ({ type }) => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const isViewMode = type === "VIEW";
 
-  // Fetch form data for View mode. Builder mode manages its own useFormBuilder instance internally.
-  const { title, description, fields, loading } = useFormBuilder(isViewMode ? id : null);
+  const [form, setForm] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isViewMode && id) {
+      const fetchForm = async () => {
+        try {
+          setLoading(true);
+          const data = await formService.getFormById(id);
+          setForm(data.data || data);
+        } catch (err) {
+          window.toast.error(err.message || "Không thể tải thông tin biểu mẫu.");
+          navigate("/");
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchForm();
+    }
+  }, [isViewMode, id, navigate]);
 
   if (isViewMode) {
     if (loading) {
@@ -21,7 +40,13 @@ export const FormDetailPage = ({ type }) => {
         </div>
       );
     }
-    return <FormViewer title={title} description={description} fields={fields} />;
+    return (
+      <FormViewer
+        title={form?.title}
+        description={form?.description}
+        fields={form?.fields || []}
+      />
+    );
   }
 
   return <FormBuilder type={type} />;

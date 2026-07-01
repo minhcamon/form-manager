@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import formService from "../../../services/formService";
 
@@ -17,56 +17,10 @@ export const useFormBuilder = (formId = null) => {
   // Loading and action states
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
-  // Active field being edited (Google Forms style)
   const [activeFieldIndex, setActiveFieldIndex] = useState(-1);
 
-  // Fetch form data if in edit mode
-  useEffect(() => {
-    if (!formId) {
-      // For new forms, start with one default text question
-      setFields([
-        {
-          label: "Câu hỏi không có tiêu đề",
-          name: "cauHoi1",
-          type: "TEXT",
-          required: false,
-          placeholder: "",
-          optionsJson: "[]",
-          validationJson: "{}",
-          displayOrder: 1
-        }
-      ]);
-      setActiveFieldIndex(0);
-      return;
-    }
-
-    const fetchFormDetails = async () => {
-      try {
-        setLoading(true);
-        const data = await formService.getFormById(formId);
-        if (data) {
-          setTitle(data.title || "");
-          setDescription(data.description || "");
-          setStatus(data.status || "DRAFT");
-          setAllowMultipleSubmission(data.allowMultipleSubmission !== false);
-          setStartAt(data.startAt ? data.startAt.substring(0, 16) : "");
-          setEndAt(data.endAt ? data.endAt.substring(0, 16) : "");
-          setFields(data.fields || []);
-          if (data.fields && data.fields.length > 0) {
-            setActiveFieldIndex(0);
-          }
-        }
-      } catch (err) {
-        window.toast.error(err.message || "Không thể tải thông tin biểu mẫu.");
-        navigate("/");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFormDetails();
-  }, [formId, navigate]);
+  // Prevent multiple creations in CREATE mode
+  const creationStarted = useRef(false);
 
   // Helper to convert label to camelCase alphanumeric name
   const convertToCamelCase = (str) => {
@@ -83,141 +37,219 @@ export const useFormBuilder = (formId = null) => {
       .join("");
   };
 
-  // Add a new question/field (Google Forms style)
-  const handleAddField = () => {
-    const newIndex = fields.length;
-    const newField = {
-      label: "Câu hỏi không có tiêu đề",
-      name: `cauHoi${newIndex + 1}`,
-      type: "TEXT",
-      required: false,
-      placeholder: "",
-      optionsJson: "[]",
-      validationJson: "{}",
-      displayOrder: newIndex + 1
+  useEffect(() => {
+    // 1. CREATE MODE: Create a default draft form first, then redirect to edit mode
+    if (!formId) {
+      if (creationStarted.current) return;
+      creationStarted.current = true;
+
+      const createDraftForm = async () => {
+        try {
+          setLoading(true);
+          const initialForm = await formService.createForm({
+            title: "Biểu mẫu chưa có tiêu đề",
+            description: "",
+            status: "DRAFT",
+            allowMultipleSubmission: true
+          });
+          const form = initialForm.data || initialForm;
+          
+          // Create the first default question for this form
+          await formService.createField(form.id, {
+            label: "Câu hỏi không có tiêu đề",
+            name: "cauHoi1",
+            type: "TEXT",
+            required: false,
+            placeholder: "",
+            optionsJson: "[]",
+            validationJson: "{}",
+            displayOrder: 1
+          });
+
+          // Navigate to the edit view for the created form
+          navigate(`/forms/edit/${form.id}`, { replace: true });
+        } catch (err) {
+          window.toast.error(err.message || "Không thể khởi tạo biểu mẫu mới.");
+          navigate("/");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      createDraftForm();
+      return;
+    }
+
+    // 2. EDIT MODE: Load form data and fields
+    const fetchFormDetails = async () => {
+      try {
+        setLoading(true);
+        const data = await formService.getFormById(formId);
+        const form = data.data || data;
+        if (form) {
+          setTitle(form.title || "");
+          setDescription(form.description || "");
+          setStatus(form.status || "DRAFT");
+          setAllowMultipleSubmission(form.allowMultipleSubmission !== false);
+          setStartAt(form.startAt ? form.startAt.substring(0, 16) : "");
+          setEndAt(form.endAt ? form.endAt.substring(0, 16) : "");
+          setFields(form.fields || []);
+          if (form.fields && form.fields.length > 0) {
+            setActiveFieldIndex(0);
+          }
+        }
+      } catch (err) {
+        window.toast.error(err.message || "Không thể tải thông tin biểu mẫu.");
+        navigate("/");
+      } finally {
+        setLoading(false);
+      }
     };
-    setFields((prev) => [...prev, newField]);
-    setActiveFieldIndex(newIndex);
+
+    fetchFormDetails();
+  }, [formId, navigate]);
+
+  // Add a new question (Direct API call, single operation)
+  const handleAddField = async () => {
+    if (!formId) return;
+    try {
+      const newIndex = fields.length;
+      const newFieldPayload = {
+        label: "Câu hỏi không có tiêu đề",
+        name: `cauHoi${newIndex + 1}`,
+        type: "TEXT",
+        required: false,
+        placeholder: "",
+        optionsJson: "[]",
+        validationJson: "{}",
+        displayOrder: newIndex + 1
+      };
+      
+      const data = await formService.createField(formId, newFieldPayload);
+      const createdField = data.data || data;
+      setFields((prev) => [...prev, createdField]);
+      setActiveFieldIndex(newIndex);
+      window.toast.success("Đã thêm câu hỏi mới.");
+    } catch (err) {
+      window.toast.error(err.message || "Không thể thêm câu hỏi.");
+    }
   };
 
-  // Update specific field properties inline
-  const handleUpdateField = (index, updatedField) => {
+  // Update specific field properties (Updates local state, saves if requested)
+  const handleUpdateField = (index, updatedProperties, shouldSaveImmediately = false) => {
     setFields((prev) => {
       const updated = [...prev];
-      const merged = { ...updated[index], ...updatedField };
+      const merged = { ...updated[index], ...updatedProperties };
       
-      // If the label is changed, auto-generate a valid camelCase name
-      if (updatedField.label !== undefined) {
-        const generatedName = convertToCamelCase(updatedField.label);
-        merged.name = generatedName || `field_${Date.now()}`;
+      if (updatedProperties.label !== undefined) {
+        merged.name = convertToCamelCase(updatedProperties.label) || `field_${Date.now()}`;
       }
       
       updated[index] = merged;
+      
+      if (shouldSaveImmediately && merged.id) {
+        formService.updateField(formId, merged.id, {
+          label: merged.label,
+          name: merged.name,
+          type: merged.type,
+          required: merged.required,
+          displayOrder: merged.displayOrder,
+          placeholder: merged.placeholder,
+          optionsJson: merged.optionsJson,
+          validationJson: merged.validationJson
+        }).catch((err) => {
+          console.error("Auto save field error:", err);
+        });
+      }
+      
       return updated;
     });
   };
 
-  // Duplicate field
-  const handleDuplicateField = (index) => {
-    const source = fields[index];
-    const duplicated = {
-      ...source,
-      name: `field_${Date.now()}`,
-      displayOrder: index + 2
-    };
-
-    setFields((prev) => {
-      const updated = [...prev];
-      updated.splice(index + 1, 0, duplicated);
-      // Re-map display orders
-      return updated.map((field, idx) => ({
-        ...field,
-        displayOrder: idx + 1
-      }));
-    });
-    setActiveFieldIndex(index + 1);
-    window.toast.success("Đã nhân bản câu hỏi.");
+  // Triggered on input blur to save text edits to the backend (single operation)
+  const handleSaveField = async (index) => {
+    const field = fields[index];
+    if (!field || !field.id) return;
+    try {
+      await formService.updateField(formId, field.id, {
+        label: field.label,
+        name: field.name,
+        type: field.type,
+        required: field.required,
+        displayOrder: field.displayOrder,
+        placeholder: field.placeholder,
+        optionsJson: field.optionsJson,
+        validationJson: field.validationJson
+      });
+    } catch (err) {
+      window.toast.error(err.message || "Lỗi khi lưu câu hỏi.");
+    }
   };
 
-  // Delete field
-  const handleDeleteField = (index) => {
+  // Duplicate field (Direct API call, single operation, no complex reorders in DB)
+  const handleDuplicateField = async (index) => {
+    const source = fields[index];
+    if (!source || !formId) return;
+    try {
+      const duplicatedPayload = {
+        label: `${source.label} (Bản sao)`,
+        name: `field_${Date.now()}`,
+        type: source.type,
+        required: source.required,
+        placeholder: source.placeholder,
+        optionsJson: source.optionsJson,
+        validationJson: source.validationJson,
+        displayOrder: index + 2
+      };
+
+      const data = await formService.createField(formId, duplicatedPayload);
+      const createdField = data.data || data;
+
+      setFields((prev) => {
+        const updated = [...prev];
+        updated.splice(index + 1, 0, createdField);
+        return updated;
+      });
+      
+      setActiveFieldIndex(index + 1);
+      window.toast.success("Đã nhân bản câu hỏi.");
+    } catch (err) {
+      window.toast.error(err.message || "Không thể nhân bản câu hỏi.");
+    }
+  };
+
+  // Delete field (Direct API call, single operation, no complex reorders in DB)
+  const handleDeleteField = async (index) => {
     if (fields.length <= 1) {
       window.toast.error("Biểu mẫu cần phải có ít nhất một câu hỏi.");
       return;
     }
+    const field = fields[index];
+    if (!field || !field.id || !formId) return;
 
-    setFields((prev) => {
-      const filtered = prev.filter((_, i) => i !== index);
-      return filtered.map((field, idx) => ({
-        ...field,
-        displayOrder: idx + 1
-      }));
-    });
-
-    // Fix active focus
-    if (activeFieldIndex === index) {
-      setActiveFieldIndex(index > 0 ? index - 1 : 0);
-    } else if (activeFieldIndex > index) {
-      setActiveFieldIndex(activeFieldIndex - 1);
-    }
-    window.toast.success("Đã xóa câu hỏi.");
-  };
-
-  // Reorder fields
-  const handleMoveField = (index, direction) => {
-    if (direction === "up" && index === 0) return;
-    if (direction === "down" && index === fields.length - 1) return;
-
-    const targetIndex = direction === "up" ? index - 1 : index + 1;
-    setFields((prev) => {
-      const updated = [...prev];
-      const temp = updated[index];
-      updated[index] = updated[targetIndex];
-      updated[targetIndex] = temp;
+    try {
+      await formService.deleteField(formId, field.id);
       
-      return updated.map((field, idx) => ({
-        ...field,
-        displayOrder: idx + 1
-      }));
-    });
-    setActiveFieldIndex(targetIndex);
+      setFields((prev) => prev.filter((_, i) => i !== index));
+
+      if (activeFieldIndex === index) {
+        setActiveFieldIndex(index > 0 ? index - 1 : 0);
+      } else if (activeFieldIndex > index) {
+        setActiveFieldIndex(activeFieldIndex - 1);
+      }
+      window.toast.success("Đã xóa câu hỏi.");
+    } catch (err) {
+      window.toast.error(err.message || "Không thể xóa câu hỏi.");
+    }
   };
 
-  // Submit form (Create or Update)
+  // Save form header details
   const handleSaveForm = async () => {
     if (!title.trim()) {
       window.toast.error("Vui lòng nhập tiêu đề biểu mẫu.");
       return;
     }
-    if (fields.length === 0) {
-      window.toast.error("Biểu mẫu cần có ít nhất một câu hỏi.");
-      return;
-    }
-
-    // Validate fields names
-    for (let i = 0; i < fields.length; i++) {
-      if (!fields[i].label.trim()) {
-        window.toast.error(`Câu hỏi số ${i + 1} chưa có nội dung nhãn.`);
-        setActiveFieldIndex(i);
-        return;
-      }
-      // Ensure option type fields have options
-      const isOptionType = ["SELECT", "RADIO", "CHECKBOX", "MULTI_SELECT"].includes(fields[i].type);
-      if (isOptionType) {
-        try {
-          const opts = JSON.parse(fields[i].optionsJson || "[]");
-          if (!Array.isArray(opts) || opts.length === 0) {
-            window.toast.error(`Câu hỏi số ${i + 1} cần có ít nhất một tùy chọn.`);
-            setActiveFieldIndex(i);
-            return;
-          }
-        } catch (e) {
-          window.toast.error(`Câu hỏi số ${i + 1} cấu trúc tùy chọn bị lỗi.`);
-          setActiveFieldIndex(i);
-          return;
-        }
-      }
-    }
+    if (!formId) return;
 
     const payload = {
       title: title.trim(),
@@ -225,19 +257,13 @@ export const useFormBuilder = (formId = null) => {
       status,
       allowMultipleSubmission,
       startAt: startAt ? `${startAt}:00` : null,
-      endAt: endAt ? `${endAt}:00` : null,
-      fields
+      endAt: endAt ? `${endAt}:00` : null
     };
 
     try {
       setIsSaving(true);
-      if (formId) {
-        await formService.updateForm(formId, payload);
-        window.toast.success("Đã cập nhật biểu mẫu thành công!");
-      } else {
-        await formService.createForm(payload);
-        window.toast.success("Đã tạo biểu mẫu mới thành công!");
-      }
+      await formService.updateForm(formId, payload);
+      window.toast.success("Đã lưu biểu mẫu thành công!");
       navigate("/");
     } catch (err) {
       window.toast.error(err.message || "Lỗi khi lưu biểu mẫu.");
@@ -266,9 +292,9 @@ export const useFormBuilder = (formId = null) => {
     setActiveFieldIndex,
     handleAddField,
     handleUpdateField,
+    handleSaveField,
     handleDuplicateField,
     handleDeleteField,
-    handleMoveField,
     handleSaveForm,
   };
 };

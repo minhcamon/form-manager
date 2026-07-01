@@ -23,7 +23,7 @@ public class FormService {
 
     @Transactional(readOnly = true)
     public List<FormResponse> getAllForms() {
-        return formRepository.findAll().stream()
+        return formRepository.findAllByStatusNot(FormStatus.ARCHIVED).stream()
                 .map(this::mapToFormResponse)
                 .collect(Collectors.toList());
     }
@@ -73,7 +73,8 @@ public class FormService {
     public void deleteForm(Long id) {
         Form form = formRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + id));
-        formRepository.delete(form);
+        form.setStatus(FormStatus.ARCHIVED);
+        formRepository.save(form);
     }
 
     private FormResponse mapToFormResponse(Form form) {

@@ -51,6 +51,36 @@ export const formService = {
             throw new Error(errorMsg);
         }
     },
+    createField: async (formId, request) => {
+        try {
+            const response = await axiosClient.post(`/forms/${formId}/fields`, request);
+            return response.data;
+        } catch (error) {
+            console.error(`Create field error:`, error);
+            const errorMsg = error.response?.data?.message || "Không thể thêm câu hỏi mới.";
+            throw new Error(errorMsg);
+        }
+    },
+    updateField: async (formId, fieldId, request) => {
+        try {
+            const response = await axiosClient.put(`/forms/${formId}/fields/${fieldId}`, request);
+            return response.data;
+        } catch (error) {
+            console.error(`Update field ${fieldId} error:`, error);
+            const errorMsg = error.response?.data?.message || "Không thể cập nhật câu hỏi.";
+            throw new Error(errorMsg);
+        }
+    },
+    deleteField: async (formId, fieldId) => {
+        try {
+            const response = await axiosClient.delete(`/forms/${formId}/fields/${fieldId}`);
+            return response;
+        } catch (error) {
+            console.error(`Delete field ${fieldId} error:`, error);
+            const errorMsg = error.response?.data?.message || "Không thể xóa câu hỏi.";
+            throw new Error(errorMsg);
+        }
+    },
 };
 
 export default formService;

@@ -13,11 +13,9 @@ export const FormBuilderFieldCard = ({
   isActive,
   onFocus,
   onUpdate,
+  onSave,
   onDuplicate,
   onDelete,
-  onMove,
-  isFirst,
-  isLast,
 }) => {
   const isChoiceType = ["SELECT", "RADIO", "CHECKBOX", "MULTI_SELECT"].includes(field.type);
 
@@ -68,6 +66,7 @@ export const FormBuilderFieldCard = ({
               <Input
                 value={field.label}
                 onChange={(e) => onUpdate({ label: e.target.value })}
+                onBlur={onSave}
                 placeholder="Câu hỏi"
                 className="text-base font-bold font-heading border-0 border-b border-border focus-visible:border-primary rounded-none shadow-none focus-visible:ring-0 px-0 h-10 bg-transparent"
               />
@@ -85,7 +84,7 @@ export const FormBuilderFieldCard = ({
                   if (isNowChoice && !wasChoice) {
                     updatePayload.optionsJson = JSON.stringify(["Tùy chọn 1"]);
                   }
-                  onUpdate(updatePayload);
+                  onUpdate(updatePayload, true);
                 }}
                 className="flex w-full h-10 items-center justify-between rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground shadow-sm outline-none focus:ring-1 focus:ring-primary/20 cursor-pointer"
               >
@@ -110,6 +109,7 @@ export const FormBuilderFieldCard = ({
               <Input
                 value={field.placeholder || ""}
                 onChange={(e) => onUpdate({ placeholder: e.target.value })}
+                onBlur={onSave}
                 placeholder="Nhập gợi ý..."
                 className="h-8 text-xs rounded-lg"
               />
@@ -134,6 +134,7 @@ export const FormBuilderFieldCard = ({
                         newOpts[optIdx] = e.target.value;
                         onUpdate({ optionsJson: JSON.stringify(newOpts) });
                       }}
+                      onBlur={onSave}
                       className="h-8 text-xs px-2 border-0 border-b border-border/40 hover:border-border focus-visible:border-primary rounded-none shadow-none focus-visible:ring-0 flex-1 bg-transparent"
                     />
                     
@@ -143,7 +144,7 @@ export const FormBuilderFieldCard = ({
                         size="icon"
                         onClick={() => {
                           const newOpts = options.filter((_, oIdx) => oIdx !== optIdx);
-                          onUpdate({ optionsJson: JSON.stringify(newOpts) });
+                          onUpdate({ optionsJson: JSON.stringify(newOpts) }, true);
                         }}
                         className="h-8 w-8 text-muted-foreground hover:text-red-500 cursor-pointer"
                       >
@@ -158,7 +159,7 @@ export const FormBuilderFieldCard = ({
                 type="button"
                 onClick={() => {
                   const newOpts = [...options, `Tùy chọn ${options.length + 1}`];
-                  onUpdate({ optionsJson: JSON.stringify(newOpts) });
+                  onUpdate({ optionsJson: JSON.stringify(newOpts) }, true);
                 }}
                 className="inline-flex items-center gap-1.5 text-xs text-primary font-semibold hover:text-indigo-700 mt-1.5 cursor-pointer"
               >
@@ -169,28 +170,7 @@ export const FormBuilderFieldCard = ({
           )}
 
           {/* Action Toolbar */}
-          <div className="flex items-center justify-between border-t border-border pt-4 mt-2">
-            <div className="flex items-center gap-0.5">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onMove("up")}
-                disabled={isFirst}
-                className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer disabled:opacity-30"
-              >
-                <ArrowUp className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onMove("down")}
-                disabled={isLast}
-                className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer disabled:opacity-30"
-              >
-                <ArrowDown className="h-4 w-4" />
-              </Button>
-            </div>
-
+          <div className="flex items-center justify-end border-t border-border pt-4 mt-2">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1 border-r border-border pr-4">
                 <Button
@@ -219,7 +199,7 @@ export const FormBuilderFieldCard = ({
                   <input
                     type="checkbox"
                     checked={field.required}
-                    onChange={(e) => onUpdate({ required: e.target.checked })}
+                    onChange={(e) => onUpdate({ required: e.target.checked }, true)}
                     className="sr-only peer"
                   />
                   <div className="w-8 h-4.5 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary"></div>
