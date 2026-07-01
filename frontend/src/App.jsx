@@ -5,6 +5,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import Layout from "./components/common/Layout";
 import LoginView from "./views/LoginView";
 import DashboardView from "./views/DashboardView";
+import FormCreateView from "./views/FormCreateView";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
@@ -29,6 +30,7 @@ function App() {
             }
           >
             <Route index element={<DashboardView />} />
+            <Route path="forms/create" element={<FormCreateView />} />
             
             {/* Fallback under workspace */}
             <Route path="*" element={<Navigate to="/" replace />} />

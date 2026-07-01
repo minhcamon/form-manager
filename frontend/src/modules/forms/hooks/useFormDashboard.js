@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import formService from "../../../services/formService";
 
 export const useFormDashboard = () => {
+  const navigate = useNavigate();
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,19 +30,27 @@ export const useFormDashboard = () => {
   }, []);
 
   const handleCreate = () => {
-    console.log("Create new form triggered");
+    navigate("/forms/create");
   };
 
   const handlePreview = (formId) => {
-    console.log(`Preview form ${formId} triggered`);
+    navigate(`/forms/preview/${formId}`);
   };
 
   const handleEdit = (formId) => {
-    console.log(`Edit form ${formId} triggered`);
+    navigate(`/forms/edit/${formId}`);
   };
 
-  const handleDelete = (formId) => {
-    console.log(`Delete form ${formId} triggered`);
+  const handleDelete = async (formId) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa biểu mẫu này không? Hành động này không thể hoàn tác.")) {
+      try {
+        await formService.deleteForm(formId);
+        window.toast.success("Xóa biểu mẫu thành công!");
+        fetchForms();
+      } catch (err) {
+        window.toast.error(err.message || "Không thể xóa biểu mẫu.");
+      }
+    }
   };
 
   return {

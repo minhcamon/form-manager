@@ -3,7 +3,7 @@ import axiosClient from "../lib/axios";
 export const authService = {
     login: async (username, password) => {
         try {
-            const response = await axiosClient.post('/api/auth/login', { username, password });
+            const response = await axiosClient.post('/auth/login', { username, password });
             return response;
         } catch (error) {
             console.error('Login error at AuthService:', error);
