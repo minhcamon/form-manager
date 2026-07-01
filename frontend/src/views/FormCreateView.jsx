@@ -1,8 +1,8 @@
 import React from "react";
-import { FormCreatePage } from "../modules/forms";
+import { FormDetailPage } from "../modules/forms";
 
 export const FormCreateView = () => {
-  return <FormCreatePage />;
+  return <FormDetailPage type="CREATE" />;
 };
 
 export default FormCreateView;

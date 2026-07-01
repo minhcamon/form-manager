@@ -1,12 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Plus, Loader2 } from "lucide-react";
 import { useFormBuilder } from "../hooks/useFormBuilder";
-import FormHeaderCard from "../components/FormHeaderCard";
-import FormBuilderFieldCard from "../components/FormBuilderFieldCard";
+import FormHeaderCard from "./FormHeaderCard";
+import FormBuilderFieldCard from "./FormBuilderFieldCard";
 import { Button } from "@/components/ui/button";
 
-export const FormCreatePage = () => {
+export const FormBuilder = ({ type }) => {
+  const { id } = useParams();
   const {
     title,
     setTitle,
@@ -21,6 +22,7 @@ export const FormCreatePage = () => {
     endAt,
     setEndAt,
     fields,
+    loading,
     isSaving,
     activeFieldIndex,
     setActiveFieldIndex,
@@ -30,7 +32,19 @@ export const FormCreatePage = () => {
     handleDeleteField,
     handleMoveField,
     handleSaveForm,
-  } = useFormBuilder();
+  } = useFormBuilder(type === "CREATE" ? null : id);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-3">
+        <Loader2 className="h-7 w-7 animate-spin text-primary" />
+        <p className="text-xs text-muted-foreground">Đang tải thông tin biểu mẫu...</p>
+      </div>
+    );
+  }
+
+  const headerTitle = type === "CREATE" ? "Tạo Biểu mẫu mới" : "Chỉnh sửa biểu mẫu";
+  const saveButtonText = type === "CREATE" ? "Lưu biểu mẫu" : "Lưu thay đổi";
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fadeIn pb-24">
@@ -44,7 +58,7 @@ export const FormCreatePage = () => {
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <span className="text-xs font-semibold text-muted-foreground bg-muted px-2.5 py-1 rounded-lg">
-            Google Forms Style Builder
+            {headerTitle}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -59,13 +73,13 @@ export const FormCreatePage = () => {
                 <span>Đang lưu...</span>
               </>
             ) : (
-              <span>Lưu biểu mẫu</span>
+              <span>{saveButtonText}</span>
             )}
           </Button>
         </div>
       </div>
 
-      {/* 1. Header Card Component */}
+      {/* Header Card Component */}
       <FormHeaderCard
         title={title}
         setTitle={setTitle}
@@ -81,7 +95,7 @@ export const FormCreatePage = () => {
         setEndAt={setEndAt}
       />
 
-      {/* 2. Questions list */}
+      {/* Questions list */}
       <div className="space-y-4">
         {fields.map((field, index) => (
           <FormBuilderFieldCard
@@ -100,7 +114,7 @@ export const FormCreatePage = () => {
         ))}
       </div>
 
-      {/* 3. Bottom controls panel */}
+      {/* Bottom controls panel */}
       <div className="flex items-center justify-between border-t border-border pt-6">
         <Button
           variant="outline"
@@ -122,4 +136,4 @@ export const FormCreatePage = () => {
   );
 };
 
-export default FormCreatePage;
+export default FormBuilder;
