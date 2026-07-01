@@ -49,24 +49,6 @@ public class FormService {
                 .createdBy(creator)
                 .build();
 
-        List<FormField> fields = new ArrayList<>();
-        if (request.getFields() != null) {
-            for (var fieldReq : request.getFields()) {
-                fields.add(FormField.builder()
-                        .form(form)
-                        .label(fieldReq.getLabel())
-                        .name(fieldReq.getName())
-                        .type(fieldReq.getType())
-                        .required(fieldReq.isRequired())
-                        .displayOrder(fieldReq.getDisplayOrder())
-                        .placeholder(fieldReq.getPlaceholder())
-                        .optionsJson(fieldReq.getOptionsJson())
-                        .validationJson(fieldReq.getValidationJson())
-                        .build());
-            }
-        }
-        form.setFields(fields);
-
         Form savedForm = formRepository.save(form);
         return mapToFormResponse(savedForm);
     }

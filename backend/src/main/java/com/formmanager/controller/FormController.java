@@ -23,14 +23,14 @@ public class FormController {
     private final FormService formService;
 
     @Operation(summary = "Lấy danh sách tất cả các form")
-    @GetMapping({"", "/"})
+    @GetMapping({ "" })
     public ResponseEntity<APIResponse<List<FormResponse>>> getAllForms() {
         List<FormResponse> forms = formService.getAllForms();
         return ResponseEntity.ok(APIResponse.success("Successfully retrieved all forms", forms));
     }
 
     @Operation(summary = "Tạo form mới")
-    @PostMapping({"", "/"})
+    @PostMapping({ "" })
     public ResponseEntity<APIResponse<FormResponse>> createForm(
             @Valid @RequestBody FormCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -39,7 +39,7 @@ public class FormController {
     }
 
     @Operation(summary = "Lấy thông tin form chi tiết")
-    @GetMapping({"/{id}"})
+    @GetMapping({ "/{id}" })
     public ResponseEntity<APIResponse<FormResponse>> getFormById(@PathVariable Long id) {
         FormResponse form = formService.getFormById(id);
         return ResponseEntity.ok(APIResponse.success("Successfully retrieved form details", form));

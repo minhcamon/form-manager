@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FormFieldRepository extends JpaRepository<FormField, Long> {
+    boolean existsByFormIdAndName(Long formId, String name);
+    boolean existsByFormIdAndNameAndIdNot(Long formId, String name, Long id);
 }

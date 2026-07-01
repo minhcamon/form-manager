@@ -1,12 +1,10 @@
 package com.formmanager.dto.request;
 
 import com.formmanager.entity.enums.FormStatus;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
@@ -27,7 +25,4 @@ public class FormCreateRequest {
     private LocalDateTime startAt;
 
     private LocalDateTime endAt;
-
-    @Valid
-    private List<FormFieldCreateRequest> fields;
 }
