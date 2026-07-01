@@ -34,7 +34,12 @@ export const useFormDashboard = () => {
   };
 
   const handlePreview = (formId) => {
-    navigate(`/forms/preview/${formId}`);
+    const form = forms.find((f) => f.id === formId);
+    if (form && form.status === "PUBLISHED") {
+      navigate(`/forms/${formId}/submissions`);
+    } else {
+      navigate(`/forms/preview/${formId}`);
+    }
   };
 
   const handleEdit = (formId) => {
@@ -53,6 +58,26 @@ export const useFormDashboard = () => {
     }
   };
 
+  const handlePublish = async (formId) => {
+    try {
+      const form = forms.find(f => f.id === formId);
+      if (!form) return;
+
+      await formService.updateForm(formId, {
+        title: form.title,
+        description: form.description,
+        status: "PUBLISHED",
+        allowMultipleSubmission: form.allowMultipleSubmission,
+        startAt: form.startAt,
+        endAt: form.endAt
+      });
+      window.toast.success("Đã công khai biểu mẫu thành công!");
+      fetchForms();
+    } catch (err) {
+      window.toast.error(err.message || "Không thể công khai biểu mẫu.");
+    }
+  };
+
   return {
     forms,
     loading,
@@ -60,6 +85,9 @@ export const useFormDashboard = () => {
     handlePreview,
     handleEdit,
     handleDelete,
+    handlePublish,
     refetch: fetchForms,
   };
 };
+
+export default useFormDashboard;

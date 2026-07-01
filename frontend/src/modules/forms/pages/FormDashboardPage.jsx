@@ -14,6 +14,7 @@ export const FormDashboardPage = () => {
     handlePreview,
     handleEdit,
     handleDelete,
+    handlePublish,
   } = useFormDashboard();
 
   return (
@@ -51,6 +52,7 @@ export const FormDashboardPage = () => {
               onPreview={handlePreview}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onPublish={handlePublish}
             />
           ))}
         </div>

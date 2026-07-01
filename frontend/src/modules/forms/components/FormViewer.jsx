@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export const FormViewer = ({ title, description, fields }) => {
+export const FormViewer = ({ title, description, fields, readOnly = false }) => {
   const navigate = useNavigate();
   const {
     answers,
@@ -66,6 +66,8 @@ export const FormViewer = ({ title, description, fields }) => {
                     placeholder={field.placeholder || "Câu trả lời của bạn"}
                     value={answers[field.name] || ""}
                     onChange={(e) => handleAnswerChange(field.name, e.target.value)}
+                    readOnly={readOnly}
+                    disabled={readOnly}
                     className="h-10 rounded-xl"
                   />
                 )}
@@ -77,7 +79,9 @@ export const FormViewer = ({ title, description, fields }) => {
                     value={answers[field.name] || ""}
                     onChange={(e) => handleAnswerChange(field.name, e.target.value)}
                     rows={3}
-                    className="block w-full rounded-xl border border-input bg-background py-2 px-3 text-sm text-foreground shadow-sm outline-none placeholder-muted-foreground/50 focus:ring-1 focus:ring-primary/20 focus:border-primary min-h-[80px]"
+                    readOnly={readOnly}
+                    disabled={readOnly}
+                    className="block w-full rounded-xl border border-input bg-background py-2 px-3 text-sm text-foreground shadow-sm outline-none placeholder-muted-foreground/50 focus:ring-1 focus:ring-primary/20 focus:border-primary min-h-[80px] disabled:opacity-60 disabled:cursor-not-allowed"
                   />
                 )}
 
@@ -203,23 +207,25 @@ export const FormViewer = ({ title, description, fields }) => {
           );
         })}
 
-        <div className="flex items-center justify-end gap-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate("/")}
-            className="rounded-xl cursor-pointer text-xs"
-          >
-            Hủy bỏ
-          </Button>
-          <Button
-            type="submit"
-            className="h-10 rounded-xl px-5 cursor-pointer font-semibold shadow-sm text-xs"
-          >
-            <Send className="h-3.5 w-3.5" />
-            <span>Gửi câu trả lời</span>
-          </Button>
-        </div>
+        {!readOnly && (
+          <div className="flex items-center justify-end gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/")}
+              className="rounded-xl cursor-pointer text-xs"
+            >
+              Hủy bỏ
+            </Button>
+            <Button
+              type="submit"
+              className="h-10 rounded-xl px-5 cursor-pointer font-semibold shadow-sm text-xs"
+            >
+              <Send className="h-3.5 w-3.5" />
+              <span>Gửi câu trả lời</span>
+            </Button>
+          </div>
+        )}
       </form>
     </div>
   );

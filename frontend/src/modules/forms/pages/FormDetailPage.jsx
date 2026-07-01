@@ -45,6 +45,7 @@ export const FormDetailPage = ({ type }) => {
         title={form?.title}
         description={form?.description}
         fields={form?.fields || []}
+        readOnly={true}
       />
     );
   }
