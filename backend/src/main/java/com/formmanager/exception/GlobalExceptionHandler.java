@@ -28,6 +28,12 @@ public class GlobalExceptionHandler {
                 .body(APIResponse.error(HttpStatus.BAD_REQUEST.value(), message, null));
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<APIResponse<Void>> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(APIResponse.error(HttpStatus.NOT_FOUND.value(), ex.getMessage(), null));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<APIResponse<Void>> handleGeneralException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
