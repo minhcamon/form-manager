@@ -6,6 +6,8 @@ export const useFormDashboard = () => {
   const navigate = useNavigate();
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submissions, setSubmissions] = useState([]);
+  const [submissionsLoading, setSubmissionsLoading] = useState(false);
 
   const fetchForms = async () => {
     try {
@@ -22,6 +24,24 @@ export const useFormDashboard = () => {
       window.toast.error(err.message || "Lỗi kết nối đến máy chủ. Vui lòng kiểm tra lại backend.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSubmissions = async () => {
+    try {
+      setSubmissionsLoading(true);
+      const data = await formService.getSubmissions();
+      if (Array.isArray(data)) {
+        setSubmissions(data);
+      } else if (data && (data.code === 200 || data.isSuccess || data.success)) {
+        setSubmissions(data.data || []);
+      } else {
+        window.toast.error("Không thể tải danh sách câu trả lời.");
+      }
+    } catch (err) {
+      window.toast.error(err.message || "Lỗi kết nối máy chủ khi tải câu trả lời.");
+    } finally {
+      setSubmissionsLoading(false);
     }
   };
 
@@ -81,11 +101,14 @@ export const useFormDashboard = () => {
   return {
     forms,
     loading,
+    submissions,
+    submissionsLoading,
     handleCreate,
     handlePreview,
     handleEdit,
     handleDelete,
     handlePublish,
+    fetchSubmissions,
     refetch: fetchForms,
   };
 };

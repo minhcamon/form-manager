@@ -1,16 +1,33 @@
-# React + Vite
+# FormManager Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A clean, minimalist light-theme frontend built with **React 19**, **Vite**, and **Tailwind CSS v4** mapping semantic theme variables.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🤖 IMPORTANT: Guidelines for AI Agents (Cursor, Claude, etc.)
 
-## React Compiler
+> [!WARNING]
+> To prevent data parsing issues, design discrepancies, or component casing mismatches, **you must read and follow the instructions in the architecture guide before writing code**:
+> 
+> 👉 **[Architecture Guide & AI Agent Guidelines](file:///d:/Data/Personal/JOBS/TOPCV/form-manager/frontend/frontend_structure.md)**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Quick Rules Summary:
+1. **API Handling**: `axiosClient` responses are already unwrapped by the interceptor. Do not use `.data.data` on service results unless nested.
+2. **Colors**: Never use custom color hexes. Use semantic Tailwind variables like `bg-primary`, `border-border`, etc.
+3. **Toasts**: Use `window.toast` (from `sonner`) globally without importing.
+4. **File Casing**: Respect file casings (`Button.jsx` vs `card.jsx`) to prevent Windows case-insensitive filesystem conflicts.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Getting Started
+
+### Development Server
+```bash
+npm install
+npm run dev
+```
+
+### Production Build
+```bash
+npm run build
+```

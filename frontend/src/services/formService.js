@@ -78,6 +78,35 @@ export const formService = {
         } catch (error) {
             console.error(`Delete field ${fieldId} error:`, error);
             const errorMsg = error.response?.data?.message || "Không thể xóa câu hỏi.";
+        }
+    },
+    getActiveForms: async () => {
+        try {
+            const response = await axiosClient.get("/forms/active");
+            return response.data;
+        } catch (error) {
+            console.error("Get active forms error at FormService:", error);
+            const errorMsg = error.response?.data?.message || "Không thể tải danh sách biểu mẫu đang mở. Vui lòng thử lại!";
+            throw new Error(errorMsg);
+        }
+    },
+    submitForm: async (id, request) => {
+        try {
+            const response = await axiosClient.post(`/forms/${id}/submit`, request);
+            return response.data;
+        } catch (error) {
+            console.error(`Submit form ${id} error at FormService:`, error);
+            const errorMsg = error.response?.data?.message || "Không thể gửi câu trả lời biểu mẫu. Vui lòng thử lại!";
+            throw new Error(errorMsg);
+        }
+    },
+    getSubmissions: async () => {
+        try {
+            const response = await axiosClient.get("/submissions");
+            return response.data;
+        } catch (error) {
+            console.error("Get submissions error at FormService:", error);
+            const errorMsg = error.response?.data?.message || "Không thể tải danh sách câu trả lời đã nộp. Vui lòng thử lại!";
             throw new Error(errorMsg);
         }
     },

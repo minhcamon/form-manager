@@ -15,12 +15,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import com.formmanager.service.FormSubmissionService;
+import com.formmanager.dto.request.FormSubmissionRequest;
+import com.formmanager.dto.response.FormSubmissionResponse;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/forms")
 public class FormController {
 
     private final FormService formService;
+    private final FormSubmissionService formSubmissionService;
 
     @Operation(summary = "Lấy danh sách tất cả các form")
     @GetMapping({ "" })
@@ -36,6 +41,13 @@ public class FormController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         FormResponse form = formService.createForm(request, userDetails.getUser());
         return ResponseEntity.ok(APIResponse.success("Successfully created form", form));
+    }
+
+    @Operation(summary = "Lấy danh sách các form active")
+    @GetMapping("/active")
+    public ResponseEntity<APIResponse<List<FormResponse>>> getActiveForms() {
+        List<FormResponse> forms = formService.getActiveForms();
+        return ResponseEntity.ok(APIResponse.success("Successfully retrieved active forms", forms));
     }
 
     @Operation(summary = "Lấy thông tin form chi tiết")
@@ -59,5 +71,15 @@ public class FormController {
     public ResponseEntity<APIResponse<Void>> deleteForm(@PathVariable Long id) {
         formService.deleteForm(id);
         return ResponseEntity.ok(APIResponse.success("Successfully deleted form", null));
+    }
+
+    @Operation(summary = "Nộp câu trả lời cho form")
+    @PostMapping("/{id}/submit")
+    public ResponseEntity<APIResponse<FormSubmissionResponse>> submitForm(
+            @PathVariable Long id,
+            @Valid @RequestBody FormSubmissionRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        FormSubmissionResponse response = formSubmissionService.submitForm(id, request, userDetails.getUser());
+        return ResponseEntity.ok(APIResponse.success("Successfully submitted response", response));
     }
 }

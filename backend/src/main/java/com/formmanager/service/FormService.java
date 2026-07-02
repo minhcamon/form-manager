@@ -29,6 +29,13 @@ public class FormService {
     }
 
     @Transactional(readOnly = true)
+    public List<FormResponse> getActiveForms() {
+        return formRepository.findByStatus(FormStatus.PUBLISHED).stream()
+                .map(this::mapToFormResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public FormResponse getFormById(Long id) {
         Form form = formRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + id));

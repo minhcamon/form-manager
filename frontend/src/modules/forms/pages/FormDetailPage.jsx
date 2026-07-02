@@ -4,11 +4,14 @@ import { Loader2 } from "lucide-react";
 import FormBuilder from "../components/FormBuilder";
 import FormViewer from "../components/FormViewer";
 import formService from "../../../services/formService";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export const FormDetailPage = ({ type }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const isViewMode = type === "VIEW";
+  const isAdmin = user?.role === "ADMIN";
 
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -42,10 +45,11 @@ export const FormDetailPage = ({ type }) => {
     }
     return (
       <FormViewer
+        formId={id}
         title={form?.title}
         description={form?.description}
         fields={form?.fields || []}
-        readOnly={true}
+        readOnly={isAdmin}
       />
     );
   }
