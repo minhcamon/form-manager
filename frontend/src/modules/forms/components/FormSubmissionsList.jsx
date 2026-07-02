@@ -51,7 +51,7 @@ export const FormSubmissionsList = ({ submissions = [], loading = false }) => {
   }
 
   return (
-    <div className="space-y-4 max-w-3xl">
+    <div className="space-y-4 max-w-3xl mx-auto">
       {submissions.map((sub) => (
         <Card
           key={sub.id}
