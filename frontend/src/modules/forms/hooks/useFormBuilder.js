@@ -66,8 +66,8 @@ export const useFormBuilder = (formId = null) => {
             displayOrder: 1
           });
 
-          // Navigate to the edit view for the created form
-          navigate(`/forms/edit/${form.id}`, { replace: true });
+          // Navigate to the view/edit page for the created form
+          navigate(`/forms/view/${form.id}`, { replace: true });
         } catch (err) {
           window.toast.error(err.message || "Không thể khởi tạo biểu mẫu mới.");
           navigate("/");

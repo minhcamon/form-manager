@@ -16,6 +16,7 @@ export const FormHeaderCard = ({
   setStartAt,
   endAt,
   setEndAt,
+  readOnly = false,
 }) => {
   return (
     <div className="space-y-4">
@@ -26,14 +27,16 @@ export const FormHeaderCard = ({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Tiêu đề biểu mẫu"
-          className="w-full text-2xl font-bold text-foreground bg-transparent border-b border-transparent hover:border-border/60 focus:border-primary pb-1 outline-none transition-all font-heading"
+          disabled={readOnly}
+          className={`w-full text-2xl font-bold text-foreground bg-transparent border-b border-transparent ${!readOnly ? "hover:border-border/60 focus:border-primary" : ""} pb-1 outline-none transition-all font-heading`}
         />
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Mô tả biểu mẫu (không bắt buộc)"
           rows={2}
-          className="w-full text-sm text-muted-foreground bg-transparent border-b border-transparent hover:border-border/60 focus:border-primary pb-1 outline-none resize-none transition-all min-h-[40px]"
+          disabled={readOnly}
+          className={`w-full text-sm text-muted-foreground bg-transparent border-b border-transparent ${!readOnly ? "hover:border-border/60 focus:border-primary" : ""} pb-1 outline-none resize-none transition-all min-h-[40px]`}
         />
       </Card>
 
@@ -46,7 +49,7 @@ export const FormHeaderCard = ({
                 <Settings className="h-4 w-4" />
                 <span className="font-heading">Thiết lập biểu mẫu nâng cao</span>
               </div>
-              <span className="text-primary font-medium">Thay đổi</span>
+              <span className="text-primary font-medium">{readOnly ? "Xem" : "Thay đổi"}</span>
             </button>
           </CollapsibleTrigger>
           <CollapsibleContent className="border-t border-border p-6 bg-muted/5 space-y-4">
@@ -56,6 +59,7 @@ export const FormHeaderCard = ({
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
+                  disabled={readOnly}
                   className="flex w-full h-9 items-center justify-between rounded-lg border border-input bg-background px-3 py-1 text-xs text-foreground outline-none focus:ring-1 focus:ring-primary/20"
                 >
                   <option value="DRAFT">Bản nháp (Draft)</option>
@@ -68,6 +72,7 @@ export const FormHeaderCard = ({
                   type="checkbox"
                   checked={allowMultipleSubmission}
                   onChange={(e) => setAllowMultipleSubmission(e.target.checked)}
+                  disabled={readOnly}
                   className="h-4 w-4 rounded border-input text-primary focus:ring-primary cursor-pointer"
                 />
                 <label htmlFor="header-allow-mult" className="text-xs font-bold text-foreground cursor-pointer select-none">
@@ -83,6 +88,7 @@ export const FormHeaderCard = ({
                   type="datetime-local"
                   value={startAt}
                   onChange={(e) => setStartAt(e.target.value)}
+                  disabled={readOnly}
                   className="flex w-full h-9 items-center justify-between rounded-lg border border-input bg-background px-3 py-1 text-xs text-foreground outline-none focus:ring-1 focus:ring-primary/20"
                 />
               </div>
@@ -92,6 +98,7 @@ export const FormHeaderCard = ({
                   type="datetime-local"
                   value={endAt}
                   onChange={(e) => setEndAt(e.target.value)}
+                  disabled={readOnly}
                   className="flex w-full h-9 items-center justify-between rounded-lg border border-input bg-background px-3 py-1 text-xs text-foreground outline-none focus:ring-1 focus:ring-primary/20"
                 />
               </div>

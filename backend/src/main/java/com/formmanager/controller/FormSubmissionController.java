@@ -26,4 +26,13 @@ public class FormSubmissionController {
         List<FormSubmissionResponse> submissions = formSubmissionService.getSubmissions(userDetails.getUser());
         return ResponseEntity.ok(APIResponse.success("Successfully retrieved submissions", submissions));
     }
+
+    @Operation(summary = "Lấy danh sách câu trả lời của 1 form cụ thể")
+    @GetMapping("/form/{formId}")
+    public ResponseEntity<APIResponse<List<FormSubmissionResponse>>> getSubmissionsByFormId(
+            @PathVariable Long formId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<FormSubmissionResponse> submissions = formSubmissionService.getSubmissionsByFormId(formId, userDetails.getUser());
+        return ResponseEntity.ok(APIResponse.success("Successfully retrieved submissions for form", submissions));
+    }
 }

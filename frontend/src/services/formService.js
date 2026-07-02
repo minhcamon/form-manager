@@ -110,6 +110,16 @@ export const formService = {
             throw new Error(errorMsg);
         }
     },
+    getSubmissionsByFormId: async (formId) => {
+        try {
+            const response = await axiosClient.get(`/submissions/form/${formId}`);
+            return response.data;
+        } catch (error) {
+            console.error(`Get submissions for form ${formId} error at FormService:`, error);
+            const errorMsg = error.response?.data?.message || "Không thể tải danh sách câu trả lời của biểu mẫu. Vui lòng thử lại!";
+            throw new Error(errorMsg);
+        }
+    },
 };
 
 export default formService;

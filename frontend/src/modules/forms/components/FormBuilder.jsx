@@ -6,7 +6,7 @@ import FormHeaderCard from "./FormHeaderCard";
 import FormBuilderFieldCard from "./FormBuilderFieldCard";
 import { Button } from "@/components/ui/button";
 
-export const FormBuilder = ({ type }) => {
+export const FormBuilder = ({ type, readOnly = false, hideNavigation = false }) => {
   const { id } = useParams();
   const {
     title,
@@ -31,7 +31,6 @@ export const FormBuilder = ({ type }) => {
     handleSaveField,
     handleDuplicateField,
     handleDeleteField,
-    handleMoveField,
     handleSaveForm,
   } = useFormBuilder(type === "CREATE" ? null : id);
 
@@ -50,35 +49,59 @@ export const FormBuilder = ({ type }) => {
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fadeIn pb-24">
       {/* Navigation Row */}
-      <div className="flex items-center justify-between border-b border-border pb-4">
-        <div className="flex items-center gap-3">
-          <Link
-            to="/"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-          <span className="text-xs font-semibold text-muted-foreground bg-muted px-2.5 py-1 rounded-lg">
-            {headerTitle}
-          </span>
+      {!hideNavigation ? (
+        <div className="flex items-center justify-between border-b border-border pb-4">
+          <div className="flex items-center gap-3">
+            <Link
+              to="/"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+            <span className="text-xs font-semibold text-muted-foreground bg-muted px-2.5 py-1 rounded-lg">
+              {headerTitle}
+            </span>
+          </div>
+          {!readOnly && (
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleSaveForm}
+                disabled={isSaving}
+                className="h-9 rounded-xl px-5 cursor-pointer font-semibold shadow-sm text-xs"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>Đang lưu...</span>
+                  </>
+                ) : (
+                  <span>{saveButtonText}</span>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={handleSaveForm}
-            disabled={isSaving}
-            className="h-9 rounded-xl px-5 cursor-pointer font-semibold shadow-sm text-xs"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                <span>Đang lưu...</span>
-              </>
-            ) : (
-              <span>{saveButtonText}</span>
-            )}
-          </Button>
-        </div>
-      </div>
+      ) : (
+        /* Render Save button at the top-right if not read-only when navigation is hidden */
+        !readOnly && (
+          <div className="flex justify-end mb-4">
+            <Button
+              onClick={handleSaveForm}
+              disabled={isSaving}
+              className="h-9 rounded-xl px-5 cursor-pointer font-semibold shadow-sm text-xs"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <span>Đang lưu...</span>
+                </>
+              ) : (
+                <span>{saveButtonText}</span>
+              )}
+            </Button>
+          </div>
+        )
+      )}
 
       {/* Header Card Component */}
       <FormHeaderCard
@@ -94,6 +117,7 @@ export const FormBuilder = ({ type }) => {
         setStartAt={setStartAt}
         endAt={endAt}
         setEndAt={setEndAt}
+        readOnly={readOnly}
       />
 
       {/* Questions list */}
@@ -109,6 +133,7 @@ export const FormBuilder = ({ type }) => {
             onSave={() => handleSaveField(index)}
             onDuplicate={() => handleDuplicateField(index)}
             onDelete={() => handleDeleteField(index)}
+            readOnly={readOnly}
           />
         ))}
       </div>
@@ -122,14 +147,16 @@ export const FormBuilder = ({ type }) => {
         >
           <Link to="/">Quay lại trang chủ</Link>
         </Button>
-        <Button
-          onClick={handleAddField}
-          variant="secondary"
-          className="h-10 rounded-xl px-4 cursor-pointer text-primary border border-border text-xs"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Thêm câu hỏi mới</span>
-        </Button>
+        {!readOnly && (
+          <Button
+            onClick={handleAddField}
+            variant="secondary"
+            className="h-10 rounded-xl px-4 cursor-pointer text-primary border border-border text-xs"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Thêm câu hỏi mới</span>
+          </Button>
+        )}
       </div>
     </div>
   );

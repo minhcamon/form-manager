@@ -23,7 +23,7 @@ const Header = () => {
           <span className="font-heading tracking-tight">FormManager</span>
         </Link>
 
-        {/* Navigation */}
+        {/* Navigation
         {user && (
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
             <Link to="/" className="flex items-center gap-1.5 hover:text-primary transition-colors">
@@ -31,7 +31,7 @@ const Header = () => {
               <span>Quản lý Form</span>
             </Link>
           </nav>
-        )}
+        )} */}
 
         {/* User profile / Actions */}
         <div className="flex items-center gap-4">

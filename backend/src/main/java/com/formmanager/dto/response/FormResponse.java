@@ -22,4 +22,5 @@ public class FormResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<FormFieldResponse> fields;
+    private long totalSubmissions;
 }

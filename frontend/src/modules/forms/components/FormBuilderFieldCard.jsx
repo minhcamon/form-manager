@@ -16,6 +16,7 @@ export const FormBuilderFieldCard = ({
   onSave,
   onDuplicate,
   onDelete,
+  readOnly = false,
 }) => {
   const isChoiceType = ["SELECT", "RADIO", "CHECKBOX", "MULTI_SELECT"].includes(field.type);
 
@@ -50,15 +51,15 @@ export const FormBuilderFieldCard = ({
 
   return (
     <div
-      onClick={() => !isActive && onFocus()}
+      onClick={() => !readOnly && !isActive && onFocus()}
       className={`group relative rounded-2xl border transition-all duration-200 bg-card overflow-hidden ${
-        isActive 
+        !readOnly && isActive 
           ? "border-l-4 border-l-primary border-border shadow-md" 
           : "border-border hover:border-zinc-300 shadow-sm cursor-pointer"
       }`}
     >
       {/* 1. EDIT MODE */}
-      {isActive ? (
+      {!readOnly && isActive ? (
         <div className="p-6 space-y-4">
           {/* Label Input & Select Type */}
           <div className="flex gap-4 items-start">

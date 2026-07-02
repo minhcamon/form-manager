@@ -7,6 +7,7 @@ import com.formmanager.entity.*;
 import com.formmanager.entity.enums.FormStatus;
 import com.formmanager.exception.ResourceNotFoundException;
 import com.formmanager.repository.FormRepository;
+import com.formmanager.repository.FormSubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class FormService {
 
     private final FormRepository formRepository;
+    private final FormSubmissionRepository formSubmissionRepository;
 
     @Transactional(readOnly = true)
     public List<FormResponse> getAllForms() {
@@ -112,6 +114,8 @@ public class FormService {
                     .collect(Collectors.toList());
         }
 
+        long totalSubmissions = formSubmissionRepository.countByFormId(form.getId());
+
         return FormResponse.builder()
                 .id(form.getId())
                 .title(form.getTitle())
@@ -124,6 +128,7 @@ public class FormService {
                 .createdAt(form.getCreatedAt())
                 .updatedAt(form.getUpdatedAt())
                 .fields(fieldsResponse)
+                .totalSubmissions(totalSubmissions)
                 .build();
     }
 }

@@ -87,6 +87,22 @@ public class FormSubmissionService {
                 .collect(Collectors.toList());
     }
 
+    // ── GET /api/submissions/form/:formId ────────────────────────────
+    @Transactional(readOnly = true)
+    public List<FormSubmissionResponse> getSubmissionsByFormId(Long formId, User requestingUser) {
+        List<FormSubmission> submissions;
+
+        if (requestingUser.getRole() == UserRole.ADMIN) {
+            submissions = formSubmissionRepository.findByFormId(formId);
+        } else {
+            submissions = formSubmissionRepository.findByFormIdAndSubmittedBy(formId, requestingUser);
+        }
+
+        return submissions.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
     // ── Mapper ───────────────────────────────────────────────────────
     private FormSubmissionResponse mapToResponse(FormSubmission submission) {
         String email = submission.getSubmittedBy() != null ? submission.getSubmittedBy().getEmail() : "Anonymous";

@@ -92,9 +92,12 @@ const LoginPage = () => {
 
           {/* Quick Demo Info */}
           <div className="mt-8 border-t border-border pt-6 text-center">
-            <span className="text-muted-foreground text-xs">
-              Tài khoản mẫu: <code className="bg-muted text-foreground px-1.5 py-0.5 rounded">admin@example.com</code> / <code className="bg-muted text-foreground px-1.5 py-0.5 rounded">admin123</code>
-            </span>
+            <div className="text-muted-foreground text-xs">
+              Admin: <code className="bg-muted text-foreground px-1.5 py-0.5 rounded">admin@example.com</code> / <code className="bg-muted text-foreground px-1.5 py-0.5 rounded">admin123</code>
+            </div>
+            <div className="text-muted-foreground text-xs">
+              Staff: <code className="bg-muted text-foreground px-1.5 py-0.5 rounded">user@example.com</code> / <code className="bg-muted text-foreground px-1.5 py-0.5 rounded">user123</code>
+            </div>
           </div>
         </div>
       </div>

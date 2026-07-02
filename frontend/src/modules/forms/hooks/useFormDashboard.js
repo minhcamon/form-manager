@@ -54,16 +54,11 @@ export const useFormDashboard = () => {
   };
 
   const handlePreview = (formId) => {
-    const form = forms.find((f) => f.id === formId);
-    if (form && form.status === "PUBLISHED") {
-      navigate(`/forms/${formId}/submissions`);
-    } else {
-      navigate(`/forms/preview/${formId}`);
-    }
+    navigate(`/forms/view/${formId}`);
   };
 
   const handleEdit = (formId) => {
-    navigate(`/forms/edit/${formId}`);
+    navigate(`/forms/view/${formId}`);
   };
 
   const handleDelete = async (formId) => {

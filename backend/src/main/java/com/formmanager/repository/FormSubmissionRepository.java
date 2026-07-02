@@ -10,4 +10,7 @@ import java.util.List;
 @Repository
 public interface FormSubmissionRepository extends JpaRepository<FormSubmission, Long> {
     List<FormSubmission> findBySubmittedBy(User user);
+    long countByFormId(Long formId);
+    List<FormSubmission> findByFormId(Long formId);
+    List<FormSubmission> findByFormIdAndSubmittedBy(Long formId, User user);
 }

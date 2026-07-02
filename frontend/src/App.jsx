@@ -7,7 +7,7 @@ import LoginView from "./views/LoginView";
 import DashboardView from "./views/DashboardView";
 import FormCreateView from "./views/FormCreateView";
 import FormEditView from "./views/FormEditView";
-import FormPreviewView from "./views/FormPreviewView";
+import FormPreviewView from "./views/FormView";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
@@ -34,7 +34,7 @@ function App() {
             <Route index element={<DashboardView />} />
             <Route path="forms/create" element={<FormCreateView />} />
             <Route path="forms/edit/:id" element={<FormEditView />} />
-            <Route path="forms/preview/:id" element={<FormPreviewView />} />
+            <Route path="forms/view/:id" element={<FormPreviewView />} />
             
             {/* Fallback under workspace */}
             <Route path="*" element={<Navigate to="/" replace />} />
