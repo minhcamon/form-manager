@@ -1,5 +1,5 @@
 import React from "react";
-import { Loader2, ClipboardList, CheckCircle2, User, Calendar, ArrowRight } from "lucide-react";
+import { Loader2, ClipboardList, CheckCircle2, User, Calendar, ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -26,7 +26,7 @@ const formatDate = (dateStr) => {
   });
 };
 
-export const FormSubmissionsList = ({ submissions = [], loading = false }) => {
+export const FormSubmissionsList = ({ submissions = [], loading = false, fields = [] }) => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[250px] space-y-3">
@@ -90,32 +90,50 @@ export const FormSubmissionsList = ({ submissions = [], loading = false }) => {
               </div>
             </div>
 
-            {/* Collapsible answers */}
-            <Collapsible className="border-t border-border pt-3">
+            {/* Collapsible dropdown answers */}
+            <Collapsible className="border-t border-border pt-3 group">
               <CollapsibleTrigger asChild>
                 <button className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline cursor-pointer">
                   <span>Xem chi tiết câu trả lời</span>
-                  <ArrowRight className="h-3 w-3" />
+                  <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </button>
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-3 animate-fadeIn">
                 <div className="rounded-xl border border-border/80 bg-zinc-50/20 p-4 space-y-3.5">
-                  {sub.values && sub.values.length > 0 ? (
-                    sub.values.map((val) => (
-                      <div key={val.id} className="space-y-1">
-                        <p className="text-[10px] font-bold text-foreground/75 uppercase tracking-wider">
-                          {val.fieldLabel || val.fieldName}
-                        </p>
-                        <p className="text-xs text-muted-foreground leading-relaxed pl-1">
-                          {renderAnswerValue(val.value) || (
-                            <span className="italic text-muted-foreground/40">(Không có câu trả lời)</span>
+                  {fields.length > 0 ? (
+                    fields.map((field) => {
+                      const valObj = sub.values?.find(
+                        (v) => v.fieldId === field.id || v.fieldName === field.name
+                      );
+                      const valStr = valObj ? valObj.value : "";
+                      const isColor = field.type === "COLOR";
+
+                      return (
+                        <div key={field.id || field.name} className="space-y-1">
+                          <p className="text-[10px] font-bold text-foreground/75 uppercase tracking-wider">
+                            {field.label}
+                          </p>
+                          {isColor && valStr ? (
+                            <div className="flex items-center gap-2 pl-1 pt-0.5">
+                              <div
+                                className="h-4 w-4 rounded-full border border-border shrink-0"
+                                style={{ backgroundColor: valStr }}
+                              />
+                              <span className="text-xs font-mono text-foreground/80">{valStr}</span>
+                            </div>
+                          ) : (
+                            <p className="text-xs text-muted-foreground leading-relaxed pl-1">
+                              {renderAnswerValue(valStr) || (
+                                <span className="italic text-muted-foreground/40">(Không có câu trả lời)</span>
+                              )}
+                            </p>
                           )}
-                        </p>
-                      </div>
-                    ))
+                        </div>
+                      );
+                    })
                   ) : (
                     <p className="text-xs text-muted-foreground italic text-center py-2">
-                      Không chứa câu trả lời nào.
+                      Không chứa thông tin câu trả lời nào.
                     </p>
                   )}
                 </div>

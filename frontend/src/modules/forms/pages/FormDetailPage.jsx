@@ -103,6 +103,7 @@ export const FormDetailPage = ({ type }) => {
               <FormSubmissionsList
                 submissions={submissions}
                 loading={submissionsLoading}
+                fields={form?.fields || []}
               />
             </TabsContent>
           </Tabs>

@@ -9,15 +9,16 @@ import com.formmanager.entity.enums.FormStatus;
 import com.formmanager.entity.enums.SubmissionStatus;
 import com.formmanager.entity.enums.UserRole;
 import com.formmanager.exception.ResourceNotFoundException;
-import com.formmanager.repository.FormFieldRepository;
 import com.formmanager.repository.FormRepository;
 import com.formmanager.repository.FormSubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.formmanager.util.FormValidator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,7 +27,6 @@ public class FormSubmissionService {
 
     private final FormSubmissionRepository formSubmissionRepository;
     private final FormRepository formRepository;
-    private final FormFieldRepository formFieldRepository;
 
     // ── POST /api/forms/:id/submit ───────────────────────────────────
     @Transactional
@@ -38,6 +38,23 @@ public class FormSubmissionService {
             throw new IllegalStateException("Form is not available for submission (status: " + form.getStatus() + ")");
         }
 
+        // Map submitted values by fieldId for quick check
+        Map<Long, String> submittedValues = request.getValues().stream()
+                .collect(Collectors.toMap(
+                        SubmissionValueRequest::getFieldId,
+                        v -> v.getValue() != null ? v.getValue() : ""
+                ));
+
+        Map<Long, FormField> formFieldsMap = form.getFields().stream()
+                .collect(Collectors.toMap(FormField::getId, f -> f));
+
+        // Ensure no invalid field is submitted
+        for (SubmissionValueRequest valReq : request.getValues()) {
+            if (!formFieldsMap.containsKey(valReq.getFieldId())) {
+                throw new IllegalArgumentException("Field id " + valReq.getFieldId() + " does not belong to form " + formId);
+            }
+        }
+
         // Build submission entity
         FormSubmission submission = FormSubmission.builder()
                 .form(form)
@@ -45,22 +62,21 @@ public class FormSubmissionService {
                 .status(SubmissionStatus.SUBMITTED)
                 .build();
 
-        // Build and link submission values
+        // Build, validate and link submission values in one pass
         List<SubmissionValue> values = new ArrayList<>();
-        for (SubmissionValueRequest valReq : request.getValues()) {
-            FormField field = formFieldRepository.findById(valReq.getFieldId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Field not found with id: " + valReq.getFieldId()));
+        for (FormField field : form.getFields()) {
+            String value = submittedValues.get(field.getId());
 
-            // Ensure the field belongs to this form
-            if (!field.getForm().getId().equals(formId)) {
-                throw new IllegalArgumentException("Field " + valReq.getFieldId() + " does not belong to form " + formId);
+            // Validate right when mapping data
+            FormValidator.validateFieldValue(field, value);
+
+            if (submittedValues.containsKey(field.getId())) {
+                values.add(SubmissionValue.builder()
+                        .submission(submission)
+                        .field(field)
+                        .value(value)
+                        .build());
             }
-
-            values.add(SubmissionValue.builder()
-                    .submission(submission)
-                    .field(field)
-                    .value(valReq.getValue())
-                    .build());
         }
 
         submission.setValues(values);

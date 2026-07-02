@@ -69,7 +69,7 @@ public class DataInitializer implements CommandLineRunner {
                     .form(form1)
                     .label("Email liên hệ")
                     .name("email")
-                    .type(FieldType.EMAIL)
+                    .type(FieldType.TEXT)
                     .required(true)
                     .displayOrder(2)
                     .placeholder("Nhập email của bạn")
@@ -79,7 +79,7 @@ public class DataInitializer implements CommandLineRunner {
                     .form(form1)
                     .label("Số điện thoại")
                     .name("phone")
-                    .type(FieldType.PHONE)
+                    .type(FieldType.TEXT)
                     .required(false)
                     .displayOrder(3)
                     .placeholder("Nhập số điện thoại (tùy chọn)")
@@ -99,18 +99,29 @@ public class DataInitializer implements CommandLineRunner {
                     .form(form1)
                     .label("Bạn có giới thiệu sản phẩm của chúng tôi không?")
                     .name("recommend")
-                    .type(FieldType.BOOLEAN)
+                    .type(FieldType.SELECT)
                     .required(true)
                     .displayOrder(5)
+                    .optionsJson("[\"Có\", \"Không\"]")
+                    .build());
+
+            fields1.add(FormField.builder()
+                    .form(form1)
+                    .label("Màu sắc thương hiệu yêu thích")
+                    .name("brandColor")
+                    .type(FieldType.COLOR)
+                    .required(true)
+                    .displayOrder(6)
+                    .placeholder("#3b82f6")
                     .build());
 
             fields1.add(FormField.builder()
                     .form(form1)
                     .label("Góp ý thêm")
                     .name("feedback")
-                    .type(FieldType.TEXTAREA)
+                    .type(FieldType.TEXT)
                     .required(false)
-                    .displayOrder(6)
+                    .displayOrder(7)
                     .placeholder("Nhập ý kiến đóng góp của bạn...")
                     .build());
 
@@ -161,11 +172,12 @@ public class DataInitializer implements CommandLineRunner {
 
             fields2.add(FormField.builder()
                     .form(form2)
-                    .label("Tải lên CV (Link hoặc File)")
-                    .name("cvFile")
-                    .type(FieldType.FILE)
+                    .label("Liên kết CV cá nhân")
+                    .name("cvUrl")
+                    .type(FieldType.TEXT)
                     .required(true)
                     .displayOrder(4)
+                    .placeholder("Nhập link CV (Google Drive, Github, vv.)")
                     .build());
 
             fields2.add(FormField.builder()

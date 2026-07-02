@@ -12,7 +12,6 @@ export const FormViewer = ({ formId, title, description, fields, readOnly = fals
     answers,
     isSubmitting,
     handleAnswerChange,
-    handleCheckboxChange,
     handleSubmitResponse
   } = useFormViewer(formId);
 
@@ -75,50 +74,11 @@ export const FormViewer = ({ formId, title, description, fields, readOnly = fals
                   />
                 )}
 
-                {/* TEXTAREA */}
-                {field.type === "TEXTAREA" && (
-                  <textarea
-                    placeholder={field.placeholder || "Câu trả lời của bạn"}
-                    value={answers[field.name] || ""}
-                    onChange={(e) => handleAnswerChange(field.name, e.target.value)}
-                    rows={3}
-                    readOnly={readOnly}
-                    disabled={readOnly}
-                    className="block w-full rounded-xl border border-input bg-background py-2 px-3 text-sm text-foreground shadow-sm outline-none placeholder-muted-foreground/50 focus:ring-1 focus:ring-primary/20 focus:border-primary min-h-[80px] disabled:opacity-60 disabled:cursor-not-allowed"
-                  />
-                )}
-
                 {/* NUMBER */}
                 {field.type === "NUMBER" && (
                   <Input
                     type="number"
                     placeholder={field.placeholder || "Nhập số..."}
-                    value={answers[field.name] || ""}
-                    onChange={(e) => handleAnswerChange(field.name, e.target.value)}
-                    readOnly={readOnly}
-                    disabled={readOnly}
-                    className="h-10 rounded-xl"
-                  />
-                )}
-
-                {/* EMAIL */}
-                {field.type === "EMAIL" && (
-                  <Input
-                    type="email"
-                    placeholder={field.placeholder || "name@example.com"}
-                    value={answers[field.name] || ""}
-                    onChange={(e) => handleAnswerChange(field.name, e.target.value)}
-                    readOnly={readOnly}
-                    disabled={readOnly}
-                    className="h-10 rounded-xl"
-                  />
-                )}
-
-                {/* PHONE */}
-                {field.type === "PHONE" && (
-                  <Input
-                    type="tel"
-                    placeholder={field.placeholder || "Nhập số điện thoại..."}
                     value={answers[field.name] || ""}
                     onChange={(e) => handleAnswerChange(field.name, e.target.value)}
                     readOnly={readOnly}
@@ -139,20 +99,25 @@ export const FormViewer = ({ formId, title, description, fields, readOnly = fals
                   />
                 )}
 
-                {/* BOOLEAN */}
-                {field.type === "BOOLEAN" && (
-                  <div className="flex items-center gap-2.5">
+                {/* COLOR */}
+                {field.type === "COLOR" && (
+                  <div className="flex items-center gap-3">
                     <input
-                      id={field.name}
-                      type="checkbox"
-                      checked={!!answers[field.name]}
-                      onChange={(e) => handleAnswerChange(field.name, e.target.checked)}
+                      type="color"
+                      value={answers[field.name] || "#3b82f6"}
+                      onChange={(e) => handleAnswerChange(field.name, e.target.value)}
                       disabled={readOnly}
-                      className="h-4 w-4 rounded border-input text-primary focus:ring-primary cursor-pointer"
+                      className="h-10 w-16 cursor-pointer rounded-xl border border-border bg-background p-1 disabled:opacity-60"
                     />
-                    <label htmlFor={field.name} className="text-xs font-semibold text-foreground cursor-pointer select-none">
-                      Đồng ý / Xác nhận
-                    </label>
+                    <Input
+                      type="text"
+                      placeholder="#3b82f6"
+                      value={answers[field.name] || ""}
+                      onChange={(e) => handleAnswerChange(field.name, e.target.value)}
+                      readOnly={readOnly}
+                      disabled={readOnly}
+                      className="h-10 rounded-xl max-w-[120px] font-mono text-center"
+                    />
                   </div>
                 )}
 
@@ -162,60 +127,13 @@ export const FormViewer = ({ formId, title, description, fields, readOnly = fals
                     value={answers[field.name] || ""}
                     onChange={(e) => handleAnswerChange(field.name, e.target.value)}
                     disabled={readOnly}
-                    className="flex w-full h-10 items-center justify-between rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm outline-none focus:ring-1 focus:ring-primary/20"
+                    className="flex w-full h-10 items-center justify-between rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm outline-none focus:ring-1 focus:ring-primary/20 cursor-pointer disabled:opacity-60"
                   >
                     <option value="">Chọn một tùy chọn</option>
                     {options.map((opt, oIdx) => (
                       <option key={oIdx} value={opt}>{opt}</option>
                     ))}
                   </select>
-                )}
-
-                {/* RADIO */}
-                {field.type === "RADIO" && (
-                  <div className="space-y-2">
-                    {options.map((opt, oIdx) => (
-                      <div key={oIdx} className="flex items-center gap-2.5">
-                        <input
-                          type="radio"
-                          name={field.name}
-                          id={`${field.name}-${oIdx}`}
-                          value={opt}
-                          checked={answers[field.name] === opt}
-                          onChange={(e) => handleAnswerChange(field.name, e.target.value)}
-                          disabled={readOnly}
-                          className="h-4 w-4 border-input text-primary focus:ring-primary cursor-pointer"
-                        />
-                        <label htmlFor={`${field.name}-${oIdx}`} className="text-xs font-medium text-foreground cursor-pointer select-none">
-                          {opt}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* CHECKBOX */}
-                {field.type === "CHECKBOX" && (
-                  <div className="space-y-2">
-                    {options.map((opt, oIdx) => {
-                      const isChecked = (answers[field.name] || []).includes(opt);
-                      return (
-                        <div key={oIdx} className="flex items-center gap-2.5">
-                          <input
-                            type="checkbox"
-                            id={`${field.name}-${oIdx}`}
-                            checked={isChecked}
-                            onChange={(e) => handleCheckboxChange(field.name, opt, e.target.checked)}
-                            disabled={readOnly}
-                            className="h-4 w-4 rounded border-input text-primary focus:ring-primary cursor-pointer"
-                          />
-                          <label htmlFor={`${field.name}-${oIdx}`} className="text-xs font-medium text-foreground cursor-pointer select-none">
-                            {opt}
-                          </label>
-                        </div>
-                      );
-                    })}
-                  </div>
                 )}
               </div>
             </Card>

@@ -34,7 +34,40 @@ export const useFormViewer = (formId) => {
       }
     }
 
-    // 2. Map answers to backend format
+    // 2. Validate format of filled fields
+    for (const field of fields) {
+      const val = answers[field.name];
+      if (val !== undefined && val !== null && val !== "") {
+        const valStr = String(val).trim();
+        if (field.type === "NUMBER") {
+          if (isNaN(Number(valStr))) {
+            window.toast.error(`Trường "${field.label}" phải là một số hợp lệ.`);
+            return false;
+          }
+        } else if (field.type === "COLOR") {
+          if (!/^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/.test(valStr)) {
+            window.toast.error(`Trường "${field.label}" phải là mã màu HEX hợp lệ (ví dụ: #FF0000).`);
+            return false;
+          }
+        } else if (field.type === "DATE") {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(valStr)) {
+            window.toast.error(`Trường "${field.label}" phải là ngày hợp lệ (định dạng YYYY-MM-DD).`);
+            return false;
+          }
+        } else if (field.type === "SELECT") {
+          let options = [];
+          try {
+            options = JSON.parse(field.optionsJson || "[]");
+          } catch(e) {}
+          if (options.length > 0 && !options.includes(valStr)) {
+            window.toast.error(`Trường "${field.label}" chứa giá trị lựa chọn không hợp lệ.`);
+            return false;
+          }
+        }
+      }
+    }
+
+    // 3. Map answers to backend format
     const submissionValues = [];
     for (const field of fields) {
       const val = answers[field.name];
@@ -45,7 +78,7 @@ export const useFormViewer = (formId) => {
         } else if (typeof val === "boolean") {
           stringValue = val ? "true" : "false";
         } else {
-          stringValue = String(val);
+          stringValue = String(val).trim();
         }
         submissionValues.push({
           fieldId: field.id,

@@ -18,7 +18,7 @@ export const FormBuilderFieldCard = ({
   onDelete,
   readOnly = false,
 }) => {
-  const isChoiceType = ["SELECT", "RADIO", "CHECKBOX", "MULTI_SELECT"].includes(field.type);
+  const isChoiceType = field.type === "SELECT";
 
   // Parse option JSON safely
   const getOptions = () => {
@@ -36,14 +36,9 @@ export const FormBuilderFieldCard = ({
   const getTypeIcon = (type) => {
     switch (type) {
       case "TEXT": return <Type className="h-4 w-4 text-muted-foreground" />;
-      case "TEXTAREA": return <AlignLeft className="h-4 w-4 text-muted-foreground" />;
       case "NUMBER": return <Hash className="h-4 w-4 text-muted-foreground" />;
-      case "EMAIL": return <Type className="h-4 w-4 text-muted-foreground" />;
-      case "PHONE": return <Phone className="h-4 w-4 text-muted-foreground" />;
       case "DATE": return <CalendarDays className="h-4 w-4 text-muted-foreground" />;
-      case "BOOLEAN": return <ToggleLeft className="h-4 w-4 text-muted-foreground" />;
-      case "RADIO": return <Circle className="h-4 w-4 text-muted-foreground" />;
-      case "CHECKBOX": return <Square className="h-4 w-4 text-muted-foreground" />;
+      case "COLOR": return <span className="h-3 w-3 rounded-full border border-border inline-block bg-primary/20 shrink-0" />;
       case "SELECT": return <List className="h-4 w-4 text-muted-foreground" />;
       default: return <Type className="h-4 w-4 text-muted-foreground" />;
     }
@@ -78,8 +73,8 @@ export const FormBuilderFieldCard = ({
                 value={field.type}
                 onChange={(e) => {
                   const newType = e.target.value;
-                  const wasChoice = ["SELECT", "RADIO", "CHECKBOX", "MULTI_SELECT"].includes(field.type);
-                  const isNowChoice = ["SELECT", "RADIO", "CHECKBOX", "MULTI_SELECT"].includes(newType);
+                  const wasChoice = field.type === "SELECT";
+                  const isNowChoice = newType === "SELECT";
                   
                   const updatePayload = { type: newType };
                   if (isNowChoice && !wasChoice) {
@@ -89,22 +84,17 @@ export const FormBuilderFieldCard = ({
                 }}
                 className="flex w-full h-10 items-center justify-between rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground shadow-sm outline-none focus:ring-1 focus:ring-primary/20 cursor-pointer"
               >
-                <option value="TEXT">Trả lời ngắn</option>
-                <option value="TEXTAREA">Đoạn văn bản</option>
-                <option value="NUMBER">Số</option>
-                <option value="EMAIL">Email</option>
-                <option value="PHONE">Số điện thoại</option>
-                <option value="DATE">Ngày tháng</option>
-                <option value="BOOLEAN">Hộp kiểm đơn (Boolean)</option>
-                <option value="RADIO">Trắc nghiệm (Radio)</option>
-                <option value="CHECKBOX">Hộp kiểm (Checkbox)</option>
+                <option value="TEXT">Trả lời ngắn (Text)</option>
+                <option value="NUMBER">Số (Number)</option>
+                <option value="DATE">Ngày tháng (Date)</option>
+                <option value="COLOR">Bảng màu (Color)</option>
                 <option value="SELECT">Menu thả xuống (Select)</option>
               </select>
             </div>
           </div>
 
           {/* Placeholder (optional) */}
-          {!["BOOLEAN", "RADIO", "CHECKBOX"].includes(field.type) && (
+          {field.type !== "SELECT" && (
             <div className="space-y-1 max-w-xs">
               <label className="text-[9px] font-bold text-muted-foreground uppercase">Gợi ý nhập (Placeholder)</label>
               <Input
@@ -124,10 +114,7 @@ export const FormBuilderFieldCard = ({
               <div className="space-y-2">
                 {options.map((opt, optIdx) => (
                   <div key={optIdx} className="flex items-center gap-2">
-                    {field.type === "RADIO" && <Circle className="h-4 w-4 text-muted-foreground/60 shrink-0" />}
-                    {field.type === "SELECT" && <span className="text-xs text-muted-foreground/60 font-mono shrink-0">{optIdx + 1}.</span>}
-                    {field.type === "CHECKBOX" && <Square className="h-4 w-4 text-muted-foreground/60 shrink-0" />}
-                    
+                    <span className="text-xs text-muted-foreground/60 font-mono shrink-0">{optIdx + 1}.</span>
                     <Input
                       value={opt}
                       onChange={(e) => {
@@ -231,24 +218,9 @@ export const FormBuilderFieldCard = ({
                 {field.placeholder || "Văn bản trả lời ngắn"}
               </div>
             )}
-            {field.type === "TEXTAREA" && (
-              <div className="w-3/4 border-b border-dashed border-border py-1 text-xs text-muted-foreground/45">
-                {field.placeholder || "Văn bản trả lời dài"}
-              </div>
-            )}
             {field.type === "NUMBER" && (
               <div className="w-1/3 border-b border-dashed border-border py-1 text-xs text-muted-foreground/45">
                 {field.placeholder || "Giá trị số"}
-              </div>
-            )}
-            {field.type === "EMAIL" && (
-              <div className="w-1/2 border-b border-dashed border-border py-1 text-xs text-muted-foreground/45">
-                {field.placeholder || "email@example.com"}
-              </div>
-            )}
-            {field.type === "PHONE" && (
-              <div className="w-1/3 border-b border-dashed border-border py-1 text-xs text-muted-foreground/45">
-                {field.placeholder || "Số điện thoại"}
               </div>
             )}
             {field.type === "DATE" && (
@@ -257,21 +229,17 @@ export const FormBuilderFieldCard = ({
                 <span>Ngày tháng năm</span>
               </div>
             )}
-            {field.type === "BOOLEAN" && (
+            {field.type === "COLOR" && (
               <div className="flex items-center gap-2">
-                <Square className="h-4 w-4 text-muted-foreground/35" />
-                <span className="text-xs text-muted-foreground/60">Có / Không</span>
+                <div className="h-6 w-10 rounded-lg border border-border bg-muted/40 shrink-0" />
+                <span className="text-xs text-muted-foreground/50">Mã màu (#000000)</span>
               </div>
             )}
-
-            {isChoiceType && (
+            {field.type === "SELECT" && (
               <div className="space-y-1.5">
                 {options.map((opt, optIdx) => (
                   <div key={optIdx} className="flex items-center gap-2">
-                    {field.type === "RADIO" && <Circle className="h-3.5 w-3.5 text-muted-foreground/35 shrink-0" />}
-                    {field.type === "SELECT" && <span className="text-xs text-muted-foreground/60 font-mono shrink-0">{optIdx + 1}.</span>}
-                    {field.type === "CHECKBOX" && <Square className="h-3.5 w-3.5 text-muted-foreground/35 shrink-0" />}
-                    
+                    <span className="text-xs text-muted-foreground/60 font-mono shrink-0">{optIdx + 1}.</span>
                     <span className="text-xs text-muted-foreground/80">{opt}</span>
                   </div>
                 ))}
